@@ -1,11 +1,13 @@
-# Linux-IPC--Pipes
-Linux-IPC-Pipes
+# Register number : 212224100054
+# Name : Senthil Raj G
+# Linux-Process-API-fork-wait-exec-
+Ex02-Linux Process API-fork(), wait(), exec()
+# Ex02-OS-Linux-Process API - fork(), wait(), exec()
+Operating systems Lab exercise
 
-
-# Ex03-Linux IPC - Pipes
 
 # AIM:
-To write a C program that illustrate communication between two process using unnamed and named pipes
+To write C Program that uses Linux Process API - fork(), wait(), exec()
 
 # DESIGN STEPS:
 
@@ -15,31 +17,86 @@ Navigate to any Linux environment installed on the system or installed inside a 
 
 ### Step 2:
 
-Write the C Program using Linux Process API - pipe(), fifo()
+Write the C Program using Linux Process API - fork(), wait(), exec()
 
 ### Step 3:
 
-Testing the C Program for the desired output. 
+Test the C Program for the desired output. 
 
 # PROGRAM:
 
-## C Program that illustrate communication between two process using unnamed pipes using Linux API system calls
+## C Program to create new process using Linux API system calls fork() and getpid() , getppid() and to print process ID and parent Process ID using Linux API system calls
+```
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+int main() {
+    int pid = fork();
+
+    if (pid == 0) { 
+        printf("I am child, my PID is %d\n", getpid()); 
+        printf("My parent PID is: %d\n", getppid()); 
+        sleep(2);  // Keep child alive for verification
+    } else { 
+        printf("I am parent, my PID is %d\n", getpid()); 
+        wait(NULL); 
+    }
+}
+```
+
+# OUTPUT
+
+<img width="616" height="381" alt="image" src="https://github.com/user-attachments/assets/a00a1783-5ea4-42df-a312-24bae58e7cb0" />
 
 
+## C Program to execute Linux system commands using Linux API system calls exec() , exit() , wait() family
+```
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
+int main() {
+    int status;
+    
+    printf("Running ps with execl\n");
+    if (fork() == 0) {
+        execl("ps", "ps", "-f", NULL);
+        perror("execl failed");
+        exit(1);
+    }
+    wait(&status);
+    
+    if (WIFEXITED(status)) {
+        printf("Child exited with status: %d\n", WEXITSTATUS(status));
+    } else {
+        printf("Child did not exit successfully\n");
+    }
+    
+    printf("Running ps with execlp (without full path)\n");
+    if (fork() == 0) {
+        execlp("ps", "ps", "-f", NULL);
+        perror("execlp failed");
+        exit(1);
+    }
+    wait(&status);
+    
+    if (WIFEXITED(status)) {
+        printf("Child exited for execlp with status: %d\n", WEXITSTATUS(status));
+    } else {
+        printf("Child did not exit successfully\n");
+    }
+    
+    printf("Done.\n");
+    return 0;
+}
+```
 
+# OUTPUT
 
-## OUTPUT
-
-
-## C Program that illustrate communication between two process using named pipes using Linux API system calls
-
-
-
-
-
-## OUTPUT
-
+<img width="662" height="486" alt="image" src="https://github.com/user-attachments/assets/2145d166-f11a-4b81-b757-b1efe593eb02" />
 
 # RESULT:
-The program is executed successfully.
+The programs are executed successfully.
