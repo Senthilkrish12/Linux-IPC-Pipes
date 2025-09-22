@@ -1,13 +1,12 @@
-# Register number : 212224100054
-# Name : Senthil Raj G
-# Linux-Process-API-fork-wait-exec-
-Ex02-Linux Process API-fork(), wait(), exec()
-# Ex02-OS-Linux-Process API - fork(), wait(), exec()
-Operating systems Lab exercise
+# Linux-IPC--Pipes
+Linux-IPC-Pipes
 
+# Register Number : 212224100054
+# Name : Senthil Raj G
+# Ex03-Linux IPC - Pipes
 
 # AIM:
-To write C Program that uses Linux Process API - fork(), wait(), exec()
+To write a C program that illustrate communication between two process using unnamed and named pipes
 
 # DESIGN STEPS:
 
@@ -17,86 +16,97 @@ Navigate to any Linux environment installed on the system or installed inside a 
 
 ### Step 2:
 
-Write the C Program using Linux Process API - fork(), wait(), exec()
+Write the C Program using Linux Process API - pipe(), fifo()
 
 ### Step 3:
 
-Test the C Program for the desired output. 
+Testing the C Program for the desired output. 
 
 # PROGRAM:
 
-## C Program to create new process using Linux API system calls fork() and getpid() , getppid() and to print process ID and parent Process ID using Linux API system calls
+## C Program that illustrate communication between two process using unnamed pipes using Linux API system calls
+
 ```
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-
-int main() {
-    int pid = fork();
-
-    if (pid == 0) { 
-        printf("I am child, my PID is %d\n", getpid()); 
-        printf("My parent PID is: %d\n", getppid()); 
-        sleep(2);  // Keep child alive for verification
-    } else { 
-        printf("I am parent, my PID is %d\n", getpid()); 
-        wait(NULL); 
-    }
+#include<stdlib.h>
+#include<sys/types.h> 
+#include<sys/stat.h> 
+#include<string.h> 
+#include<fcntl.h> 
+#include<unistd.h>
+#include<sys/wait.h>
+void server(int,int); 
+void client(int,int); 
+int main() 
+{ 
+int p1[2],p2[2],pid, *waits; 
+pipe(p1); 
+pipe(p2); 
+pid=fork(); 
+if(pid==0) { 
+close(p1[1]); 
+close(p2[0]); 
+server(p1[0],p2[1]); return 0;
+ } 
+close(p1[0]); 
+close(p2[1]); 
+client(p1[1],p2[0]); 
+wait(waits); 
+return 0; 
+} 
+void server(int rfd,int wfd) 
+{ 
+int i,j,n; 
+char fname[2000]; 
+char buff[2000];
+n=read(rfd,fname,2000);
+fname[n]='\0';
+int fd=open(fname,O_RDONLY);
+sleep(10); 
+if(fd<0) 
+write(wfd,"can't open",9); 
+else 
+n=read(fd,buff,2000); 
+write(wfd,buff,n); 
+}
+void client(int wfd,int rfd) {
+int i,j,n; char fname[2000];
+char buff[2000];
+printf("ENTER THE FILE NAME :");
+scanf("%s",fname);
+sleep(10);
+write(wfd,fname,2000);
+n=read(rfd,buff,2000);
+buff[n]='\0';
+printf("THE RESULTS OF CLIENTS ARE ...... \n"); write(1,buff,n);
 }
 ```
 
-# OUTPUT
-
-<img width="616" height="381" alt="image" src="https://github.com/user-attachments/assets/a00a1783-5ea4-42df-a312-24bae58e7cb0" />
 
 
-## C Program to execute Linux system commands using Linux API system calls exec() , exit() , wait() family
+## OUTPUT
+
+![WhatsApp Image 2025-05-16 at 16 05 20_8c20c571](https://github.com/user-attachments/assets/973af660-60ad-4e19-9e18-9b98ab6e128c)
+
+## C Program that illustrate communication between two process using named pipes using Linux API system calls
+
 ```
-#include <stdio.h>
+#include <unistd.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <sys/types.h>
-#include <sys/wait.h>
-#include <unistd.h>
-
-int main() {
-    int status;
-    
-    printf("Running ps with execl\n");
-    if (fork() == 0) {
-        execl("ps", "ps", "-f", NULL);
-        perror("execl failed");
-        exit(1);
-    }
-    wait(&status);
-    
-    if (WIFEXITED(status)) {
-        printf("Child exited with status: %d\n", WEXITSTATUS(status));
-    } else {
-        printf("Child did not exit successfully\n");
-    }
-    
-    printf("Running ps with execlp (without full path)\n");
-    if (fork() == 0) {
-        execlp("ps", "ps", "-f", NULL);
-        perror("execlp failed");
-        exit(1);
-    }
-    wait(&status);
-    
-    if (WIFEXITED(status)) {
-        printf("Child exited for execlp with status: %d\n", WEXITSTATUS(status));
-    } else {
-        printf("Child did not exit successfully\n");
-    }
-    
-    printf("Done.\n");
-    return 0;
+#include <sys/stat.h>
+int main(){
+int res = mkfifo("/tmp/my_fifo", 0777);
+if (res == 0) printf("FIFO created\n");
+exit(EXIT_SUCCESS);
 }
 ```
 
-# OUTPUT
 
-<img width="662" height="486" alt="image" src="https://github.com/user-attachments/assets/2145d166-f11a-4b81-b757-b1efe593eb02" />
+
+## OUTPUT
+
+![WhatsApp Image 2025-05-16 at 16 05 35_4bdeee47](https://github.com/user-attachments/assets/1c104207-b308-4f03-920d-7499c03d6c71)
 
 # RESULT:
-The programs are executed successfully.
+The program is executed successfully.
